@@ -1,0 +1,34 @@
+
+// @route POST /api/kids/register
+// @desc  Register kid
+// @access private
+   router.post()
+
+   Work-Assigned
+// @route POST /api/kids/assignedWork
+// @desc  assign work to kid
+// @access private
+   router.post()
+
+   Work-Done
+// @route POST /api/kids/workDone
+// @desc  update status assign to done
+// @access private
+   router.post() or router.update()
+
+   Work - cancel
+// @route POST /api/kids/cancelWork
+// @desc  cancel assigned work
+// @access private
+   router.post() or router.delete()
+
+// @route POST /api/kids/balance
+// @desc  show money earned by kids seperatly
+// @access private
+   router.get()
+
+// @route POST /api/kids/reset
+// @desc  kid's balance back to zero
+// @access private
+   router.delete()
+
