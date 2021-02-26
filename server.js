@@ -1,5 +1,6 @@
 const express = require('express');
 const users = require('./routes/api/users');
+const kids = require('./routes/api/kids');
 const mongoose = require('mongoose');
 const bodyparser = require('body-parser');
 const passport = require('passport');
@@ -16,6 +17,7 @@ app.use(bodyparser.json());
 
 //Use routes
 app.use('/api/users', users);
+app.use('/api/kids', kids);
 const port = 7200;
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
