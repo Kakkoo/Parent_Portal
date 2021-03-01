@@ -1,7 +1,11 @@
 .App {
   text-align: left;
-  font-family: Abel Sans;
   box-sizing: border-box;
+}
+
+:root {
+  --teal-color: #0f4c5c;
+  --aqua-color: #00a896;
 }
 
 /* .App-logo {
@@ -155,5 +159,27 @@ margin-top:15px;
   margin-top: 13px;
 }
 
+.btn-custom {
+  background-color: var(--teal-color);
+}
+
+.btn-custom:hover {
+  background-color: var(--aqua-color);
+  transform: scale(1.1);
+}
+
+.btn-outline-custom {
+  border: 2px var(--teal-color) solid;
+  color: var(--teal-color);
+  font-weight: 500;
+}
+
+
+.btn-outline-custom:hover{
+  border: 2px var(--aqua-color) solid;
+  color: var(--aqua-color);
+  font-weight: 500;
+  transform: scale(1.1);
+}
 
 

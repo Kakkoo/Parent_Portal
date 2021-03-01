@@ -15,6 +15,8 @@ import "./App.css";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import Dashboard from "./components/dashboard/Dashboard";
+import AssignedWork from './components/dashboard/AssignedWork';
+import AddChildren from './components/dashboard/AddChildren';
 import store from "./store";
 if (localStorage.jwtToken) {
   //decode
@@ -49,7 +51,10 @@ class App extends Component {
             <Route exact path="/login" component={Login} />
             <Route exact path="/forgotpassword" component={ForgotPassword} />
             <Switch>
-              <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <Route exact path="/dashboard" component={Dashboard} />
+              <Route exact path="/addchildren" component={AddChildren} />
+              <Route exact path="/assignedwork" component={AssignedWork} />
+
             </Switch>
             <Footer />
           </div>
