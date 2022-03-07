@@ -11,14 +11,12 @@ const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 
 const router = express.Router();
-
 // @route POST /api/users
 // @desc Register user
 // @access Public
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-  console.log("second level users");
+    res.send('respond with a resource');
 });
 
 
@@ -27,6 +25,8 @@ router.get("/getuser", (req, res) => {
   User.findOne({email: req.body.email}).then((user) => {
       if(user){
           return res.status(200).json({ user: user });
+      }else{
+        return res.status(400).json({ user: "user not found"});
       }
   })
 })

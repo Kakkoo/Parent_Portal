@@ -1,7 +1,6 @@
 const express = require("express");
 const Kid = require("../../models/Kid");
 const User = require("../../models/User");
-const Works = require("../../models/Work");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
@@ -27,12 +26,12 @@ router.post(
       return res.status(400).json(errors);
     }
     const kiddata = new Kid({
-      user: req.user.id,
+      user: req.user._id,
       name: req.body.name,
       age: req.body.age,
     });
 
-    Kid.findOne({ name: req.body.name, user: req.user.id })
+    Kid.findOne({ name: req.body.name, user: req.user._id })
       .then((kid) => {
         console.log("user: ", kid);
         if (kid) {
@@ -47,6 +46,25 @@ router.post(
       .catch((err) => console.log(err));
   }
 );
+
+router.get(
+  "/getkid",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    Kid.find({user: req.user._id })
+      .then((kid) => {
+        console.log("Kids_server: ", kid);
+        let KIDS = kid.map((item)=>  item.name)
+        if (kid) {
+          return res.status(200).json(KIDS);
+        } else {
+         console.log("no kids")
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+);
+
 // @route POST /api/kids
 // @desc assign work to kid
 // @access Private
@@ -62,7 +80,7 @@ router.post(
       return res.status(400).json(errors);
     }
     Work.findOne({
-      user: req.user.id,
+      user: req.user._id,
       name: req.body.name,
       work: req.body.work,
       money: req.body.money,
@@ -74,7 +92,7 @@ router.post(
             .json({ work: "Same work is aleady assigned." });
         }
         const newWork = new Work({
-          user: req.user.id,
+          user: req.user._id,
           name: req.body.name,
           work: req.body.work,
           money: req.body.money,
@@ -99,7 +117,7 @@ router.post(
     const name = req.body.name;
     const work = req.body.work;
     const money = req.body.money;
-    const user = req.user.id;
+    const user = req.user._id;
 
     Work.findOne({ name: name, work: work, money: money, user: user })
       .then((kid) => {
@@ -124,7 +142,7 @@ router.get(
   "/earned",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const USER = req.user.id;
+    const USER = req.user._id;
     Kid.find({ user: USER })
       .populate("Kid", ["name"])
       .then((KID) => {
@@ -173,7 +191,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const KID = req.body.name;
-    const USER = req.user.id;
+    const USER = req.user._id;
     Work.deleteMany({ user: USER, name: KID, status: "done" })
       .then((data) => {
         res.json(data);

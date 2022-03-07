@@ -27,6 +27,7 @@
     "nodemailer": "^6.4.11",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "react-native-config": "^1.4.5",
     "rm": "^0.1.8",
     "validator": "^13.1.1"
   },
