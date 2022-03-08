@@ -11,7 +11,7 @@ const validateAssignWorkInput = require("../../validation/assignwork");
 const Work = require("../../models/Work");
 const router = express.Router();
 // @route POST /api/kids
-// @desc Register user
+// @desc Register a kid for a particular user
 // @access Private
 
 router.post(
@@ -21,7 +21,6 @@ router.post(
     // console.log('req: ', req.body);
     // console.log('res: ', res);
     const { errors, isValid } = validateRegisterkidInput(req.body);
-
     if (!isValid) {
       return res.status(400).json(errors);
     }
@@ -46,19 +45,54 @@ router.post(
       .catch((err) => console.log(err));
   }
 );
+// @route POST /api/kids
+// @desc delete a kid name all of his/her works for a particular user
+// @access Private
 
+router.post(
+  "/deletekid",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    // console.log('req: ', req.body);
+    // console.log('res: ', res);
+    // const { errors, isValid } = validateRegisterkidInput(req.body);
+    // if (!isValid) {
+    //   return res.status(400).json(errors);
+    // }
+    Kid.findOne({ name: req.body.removename, user: req.user._id })
+      .then((kid) => {
+        console.log("user: ", kid);
+        if (kid) {
+          Kid.deleteOne({ user: req.user._id, name: req.body.removename })
+            .then((data) => {
+              res.json(data);
+            })
+            .catch((err) => console.log(err));
+          Work.deleteMany({ user: req.user._id, name: req.body.removename })
+            .then((data) => {
+              res.json(data);
+            })
+            .catch((err) => console.log(err));
+          return res.status(400).json({ name: "name deleted." });
+        } else {
+          return res.status(400).json({ name: "Nmae does't exists." });
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+);
 router.get(
   "/getkid",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Kid.find({user: req.user._id })
+    Kid.find({ user: req.user._id })
       .then((kid) => {
         console.log("Kids_server: ", kid);
-        let KIDS = kid.map((item)=>  item.name)
+        let KIDS = kid.map((item) => item.name);
         if (kid) {
           return res.status(200).json(KIDS);
         } else {
-         console.log("no kids")
+          console.log("no kids");
         }
       })
       .catch((err) => console.log(err));
