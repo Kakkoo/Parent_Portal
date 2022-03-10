@@ -195,17 +195,17 @@ router.get(
           .then((data) => {
             let total = 0;
             let balance = [];
-            let temp = [];
+            let temp = {};
             let i = 0;
             for(i = 0; i < Kids.length; i++){
               total = 0;
-              temp =[];
+              temp ={};
               for(let j = 0; j < data.length; j++){
                 if(data[j].name === Kids[i]){
                   total = total + Number(data[j].money);
                 }               
               }
-              temp.push(Kids[i], total);
+              temp.key = i; temp.name = Kids[i]; temp.money = total;
               balance.push(temp);
             }           
             console.log(balance);
