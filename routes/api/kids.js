@@ -194,21 +194,21 @@ router.get(
         Work.find({ user: USER, status: "done" })
           .then((data) => {
             let total = 0;
-            let balance = {};
-            let temp = {};
+            let balance = [];
+            let temp = [];
             let i = 0;
-            for (i = 0; i < Kids.length; i++) {
+            for(i = 0; i < Kids.length; i++){
               total = 0;
-              temp = {};
-              for (let j = 0; j < data.length; j++) {
-                if (data[j].name === Kids[i]) {
+              temp =[];
+              for(let j = 0; j < data.length; j++){
+                if(data[j].name === Kids[i]){
                   total = total + Number(data[j].money);
-                }
+                }               
               }
-              temp[Kids[i]] = total;
-              balance[i] = temp;
-            }
-            console.log("Balance", balance);
+              temp.push(Kids[i], total);
+              balance.push(temp);
+            }           
+            console.log(balance);
             return res.json(balance);
           })
           .catch((err) => console.log(err));
