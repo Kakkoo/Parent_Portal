@@ -14,7 +14,7 @@ app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
 //First route
-app.get('/', (req, res) => res.send(' Hello 124'));
+app.get('/', (req, res) => res.send(' Hello 1245'));
 
 //Use routes
 app.use('/api/users', users);
