@@ -206,7 +206,7 @@ router.get(
                 }               
               }
               temp.key = i; temp.name = Kids[i]; temp.money = total;
-              balance.push(temp);
+              balance.push({key: i, value: temp});
             }           
             console.log(balance);
             return res.json(balance);
