@@ -185,7 +185,7 @@ router.get(
         } else {
           Kid.find({ user: user }).then((Kids) => {
             let array = [];
-            let RESULT = {};
+            let RESULT = [];
             let result = {};
             if (!Kids) {
               return res
@@ -194,16 +194,16 @@ router.get(
             } else {
               for (let i = 0; i < Kids.length; i++) {
                 result = {};
-                RESULT = {};
+                RESULT = [];
                 result.key = i;
+                result.value = Kids[i].name;
                 for (let j = 0; j < work.length; j++) {
                   if (Kids[i].name === work[j].name) {
-                    RESULT.key = j;
-                    RESULT[work[j]._id] = (work[j].work);
+                    //RESULT[work[j]._id] = work[j].work;
+                    RESULT.push(work[j].work)
                   }
                 }
-                
-                result[Kids[i].name] = RESULT;
+                result.work = RESULT;
                 array.push(result);
               }
               return res.status(200).json(array);
