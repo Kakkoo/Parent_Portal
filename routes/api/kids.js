@@ -168,6 +168,52 @@ router.post(
       .catch((err) => console.log(err));
   }
 );
+// @route POST /api/kids
+// @desc assigned work
+// @access Private
+
+router.get(
+  "/assignedwork",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const user = req.user._id;
+
+    Work.find({ user: user, status: "assigned" })
+      .then((work) => {
+        if (!work) {
+          return res.status(200).json({ name: "No work is assigned yet" });
+        } else {
+          Kid.find({ user: user }).then((Kids) => {
+            let array = [];
+            let RESULT = {};
+            let result = {};
+            if (!Kids) {
+              return res
+                .status(400)
+                .json({ Kid: "No Kids found for this user" });
+            } else {
+              for (let i = 0; i < Kids.length; i++) {
+                result = {};
+                RESULT = {};
+                result.key = i;
+                for (let j = 0; j < work.length; j++) {
+                  if (Kids[i].name === work[j].name) {
+                    RESULT.key = j;
+                    RESULT[work[j]._id] = (work[j].work);
+                  }
+                }
+                
+                result[Kids[i].name] = RESULT;
+                array.push(result);
+              }
+              return res.status(200).json(array);
+            }
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+);
 // @route GET /api/kids
 // @desc earned money by kids
 // @access Private
@@ -197,17 +243,19 @@ router.get(
             let balance = [];
             let temp = {};
             let i = 0;
-            for(i = 0; i < Kids.length; i++){
+            for (i = 0; i < Kids.length; i++) {
               total = 0;
-              temp ={};
-              for(let j = 0; j < data.length; j++){
-                if(data[j].name === Kids[i]){
+              temp = {};
+              for (let j = 0; j < data.length; j++) {
+                if (data[j].name === Kids[i]) {
                   total = total + Number(data[j].money);
-                }               
+                }
               }
-              temp.key = i; temp.name = Kids[i]; temp.money = total;
-              balance.push({key: i, value: temp});
-            }           
+              temp.key = i;
+              temp.name = Kids[i];
+              temp.money = total;
+              balance.push({ key: i, value: temp });
+            }
             console.log(balance);
             return res.json(balance);
           })
