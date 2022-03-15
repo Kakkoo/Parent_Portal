@@ -117,7 +117,6 @@ router.post(
       user: req.user._id,
       name: req.body.name,
       work: req.body.work,
-      money: req.body.money,
     })
       .then((data) => {
         if (data) {
@@ -185,7 +184,8 @@ router.get(
         } else {
           Kid.find({ user: user }).then((Kids) => {
             let array = [];
-            let RESULT = [];
+            let RESULTWORK = [];
+            let RESULTMONEY = [];
             let result = {};
             if (!Kids) {
               return res
@@ -194,17 +194,19 @@ router.get(
             } else {
               for (let i = 0; i < Kids.length; i++) {
                 result = {};
-                RESULT = [];
+                RESULTWORK = [];
+                RESULTMONEY = [];
                 result.key = i;
                 result.value = Kids[i].name;
                 for (let j = 0; j < work.length; j++) {
                   if (Kids[i].name === work[j].name) {
                     //RESULT[work[j]._id] = work[j].work;
-                    RESULT.push(work[j].work);
-                    RESULT.push(work[j].money);
+                    RESULTWORK.push(work[j].work);
+                    RESULTMONEY.push(work[j].money);
                   }
                 }
-                result.work = RESULT;
+                result.work = RESULTWORK;
+                result.money = RESULTMONEY;
                 array.push(result);
               }
               return res.status(200).json(array);
