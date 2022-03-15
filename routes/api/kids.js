@@ -182,36 +182,19 @@ router.get(
         if (!work) {
           return res.status(200).json({ name: "No work is assigned yet" });
         } else {
-          Kid.find({ user: user }).then((Kids) => {
-            let array = [];
-            let RESULTWORK = [];
-            let RESULTMONEY = [];
-            let result = {};
-            if (!Kids) {
-              return res
-                .status(400)
-                .json({ Kid: "No Kids found for this user" });
-            } else {
-              for (let i = 0; i < Kids.length; i++) {
-                result = {};
-                RESULTWORK = [];
-                RESULTMONEY = [];
-                result.key = i;
-                result.value = Kids[i].name;
-                for (let j = 0; j < work.length; j++) {
-                  if (Kids[i].name === work[j].name) {
-                    //RESULT[work[j]._id] = work[j].work;
-                    RESULTWORK.push(work[j].work);
-                    RESULTMONEY.push(work[j].money);
-                  }
-                }
-                result.work = RESULTWORK;
-                result.money = RESULTMONEY;
-                array.push(result);
-              }
-              return res.status(200).json(array);
+          Work.find({ user: user }).then((works) => {
+            let result = [];
+            let RESULT = {};
+            for (let i = 0; i < works.length; i++) {
+              RESULT = {};
+              RESULT.name = works[i].name;
+              RESULT.work = works[i].work;
+              RESULT.money = works[i].money;
+              result.push(RESULT);
             }
-          });
+            return res.status(200).json(result);
+          }
+          );
         }
       })
       .catch((err) => console.log(err));
