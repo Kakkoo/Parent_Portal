@@ -200,7 +200,8 @@ router.get(
                 for (let j = 0; j < work.length; j++) {
                   if (Kids[i].name === work[j].name) {
                     //RESULT[work[j]._id] = work[j].work;
-                    RESULT.push(work[j].work)
+                    RESULT.push(work[j].work);
+                    RESULT.push(work[j].money);
                   }
                 }
                 result.work = RESULT;
