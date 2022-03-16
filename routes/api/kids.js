@@ -150,7 +150,8 @@ router.post(
     const name = req.body.name;
     const work = req.body.work;
     const money = req.body.money;
-    const user = req.user._id;
+    //const user = req.user._id;
+    const user = req.body.key;
 
     Work.findOne({ name: name, work: work, money: money, user: user })
       .then((kid) => {
