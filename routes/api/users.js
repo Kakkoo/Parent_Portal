@@ -163,6 +163,10 @@ router.get(
 // @desc    Reset user's password
 // @access  Public
 router.post("/forgotPassword", (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   const email = req.body.email;
   let newPassword = JSON.stringify(
     Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
