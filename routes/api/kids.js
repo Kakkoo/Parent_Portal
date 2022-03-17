@@ -199,6 +199,38 @@ router.get(
       .catch((err) => console.log(err));
   }
 );
+// @route POST /api/kids
+// @desc completed work
+// @access Private
+
+router.get(
+  "/completedWork",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const user = req.user._id;
+
+    Work.find({ user: user, status: "done" })
+      .then((works) => {
+        if (!works) {
+          return res.status(200).json({ name: "No work is assigned yet" });
+        } else {
+          let result = [];
+          let RESULT = {};
+          for (let i = 0; i < works.length; i++) {
+            RESULT = {};
+            RESULT.key = works[i]._id;
+            RESULT.name = works[i].name;
+            RESULT.work = works[i].work;
+            RESULT.money = works[i].money;
+            RESULT.date = works[i].date;
+            result.push(RESULT);
+          }
+          return res.status(200).json(result);
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+);
 // @route GET /api/kids
 // @desc earned money by kids
 // @access Private
