@@ -187,7 +187,7 @@ router.get(
           let RESULT = {};
           for (let i = 0; i < works.length; i++) {
             RESULT = {};
-            RESULT.key = works[i]._id;
+            RESULT.key = works[i].user;
             RESULT.name = works[i].name;
             RESULT.work = works[i].work;
             RESULT.money = works[i].money;
