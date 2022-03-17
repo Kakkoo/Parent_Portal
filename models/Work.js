@@ -8,6 +8,10 @@ const WorkSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "users",
   },
+  kid: {
+    type: Schema.Types.ObjectId,
+    ref: "kids",
+  },
   name: {
     type: String,
     required: true,
