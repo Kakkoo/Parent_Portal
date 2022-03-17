@@ -179,24 +179,21 @@ router.get(
     const user = req.user._id;
 
     Work.find({ user: user, status: "assigned" })
-      .then((work) => {
-        if (!work) {
+      .then((works) => {
+        if (!works) {
           return res.status(200).json({ name: "No work is assigned yet" });
         } else {
-          Work.find({ user: user }).then((works) => {
-            let result = [];
-            let RESULT = {};
-            for (let i = 0; i < works.length; i++) {
-              RESULT = {};
-              RESULT.key = works[i]._id;
-              RESULT.name = works[i].name;
-              RESULT.work = works[i].work;
-              RESULT.money = works[i].money;
-              result.push(RESULT);
-            }
-            return res.status(200).json(result);
+          let result = [];
+          let RESULT = {};
+          for (let i = 0; i < works.length; i++) {
+            RESULT = {};
+            RESULT.key = works[i]._id;
+            RESULT.name = works[i].name;
+            RESULT.work = works[i].work;
+            RESULT.money = works[i].money;
+            result.push(RESULT);
           }
-          );
+          return res.status(200).json(result);
         }
       })
       .catch((err) => console.log(err));
