@@ -117,6 +117,7 @@ router.post(
       user: req.user._id,
       name: req.body.name,
       work: req.body.work,
+      work: req.body.money
     })
       .then((data) => {
         if (data) {
