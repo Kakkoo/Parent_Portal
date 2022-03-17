@@ -147,9 +147,9 @@ router.post(
   "/assignedtodone",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const name = req.body.item.name;
-    const work = req.body.item.work;
-    const money = req.body.item.money;
+    const name = req.body.name;
+    const work = req.body.work;
+    const money = req.body.money;
     const user = req.user._id;
 
     Work.findOne({ name: name, work: work, money: money, user: user })
