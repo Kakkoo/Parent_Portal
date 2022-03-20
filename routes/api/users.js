@@ -361,6 +361,8 @@ router.post("/forgotPassword", (req, res) => {
           console.log("Message sent: " + info.response);
         });
       } 
+    })
+    .catch((err) => console.log(err))
 });
 //@route   POST /api/users/changePassword
 //@desc    change user's password
