@@ -25,12 +25,12 @@ router.post(
       return res.status(400).json(errors);
     }
     const kiddata = new Kid({
-      user: req.user._id,
+      user: req.user._id ? req.user._id : req.user.user, 
       name: req.body.name,
       age: req.body.age,
     });
 
-    Kid.findOne({ name: req.body.name, user: req.user._id })
+    Kid.findOne({ name: req.body.name,  user: req.user._id ? req.user._id : req.user.user })
       .then((kid) => {
         console.log("user: ", kid);
         if (kid) {
@@ -59,16 +59,16 @@ router.post(
     // if (!isValid) {
     //   return res.status(400).json(errors);
     // }
-    Kid.findOne({ name: req.body.removename, user: req.user._id })
+    Kid.findOne({ name: req.body.removename, user: req.user._id ? req.user._id : req.user.user})
       .then((kid) => {
         console.log("user: ", kid);
         if (kid) {
-          Kid.deleteOne({ user: req.user._id, name: req.body.removename })
+          Kid.deleteOne({ user: req.user._id ? req.user._id : req.user.user, name: req.body.removename })
             .then((data) => {
               res.json(data);
             })
             .catch((err) => console.log(err));
-          Work.deleteMany({ user: req.user._id, name: req.body.removename })
+          Work.deleteMany({ user: req.user._id ? req.user._id : req.user.user, name: req.body.removename })
             .then((data) => {
               res.json(data);
             })
@@ -85,7 +85,7 @@ router.get(
   "/getkid",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Kid.find({ user: req.user._id })
+    Kid.find({ user: req.user._id ? req.user._id : req.user.user })
       .then((kid) => {
         console.log("Kids_server: ", kid);
         let KIDS = kid.map((item) => item.name);
@@ -114,7 +114,7 @@ router.post(
       return res.status(400).json(errors);
     }
     Work.findOne({
-      user: req.user._id,
+      user: req.user._id ? req.user._id : req.user.user,
       name: req.body.name,
       work: req.body.work,
       work: req.body.money
@@ -126,7 +126,7 @@ router.post(
             .json({ work: "Same work is aleady assigned." });
         }
         const newWork = new Work({
-          user: req.user._id,
+          user: req.user._id ? req.user._id : req.user.user,
           name: req.body.name,
           work: req.body.work,
           money: req.body.money,
@@ -151,7 +151,7 @@ router.post(
     const name = req.body.name;
     const work = req.body.work;
     const money = req.body.money;
-    const user = req.user._id;
+    const user = req.user._id ? req.user._id : req.user.user;
 
     Work.findOne({ name: name, work: work, money: money, user: user })
       .then((kid) => {
@@ -176,7 +176,7 @@ router.get(
   "/assignedwork",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const user = req.user._id;
+    const user = req.user._id ? req.user._id : req.user.user;
 
     Work.find({ user: user, status: "assigned" })
       .then((works) => {
@@ -207,7 +207,7 @@ router.get(
   "/completedWork",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const user = req.user._id;
+    const user = req.user._id ? req.user._id : req.user.user;
 
     Work.find({ user: user, status: "done" })
       .then((works) => {
@@ -239,7 +239,7 @@ router.get(
   "/earned",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const USER = req.user._id;
+    const USER = req.user._id ? req.user._id : req.user.user;
     Kid.find({ user: USER })
       .populate("Kid", ["name"])
       .then((KID) => {
@@ -290,7 +290,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const KID = req.body.name;
-    const USER = req.user._id;
+    const USER = req.user._id ? req.user._id : req.user.user;
     Work.deleteMany({ user: USER, name: KID, status: "done" })
       .then((data) => {
         res.json(data);
