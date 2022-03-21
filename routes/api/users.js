@@ -32,78 +32,86 @@ router.get("/getuser", (req, res) => {
 // @access Public
 /* GET users listing. */
 
-router.post("/registerGuardian", (req, res) => {
-  let newPassword = JSON.stringify(
-    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
-  );
-  const NEWPASSWORD = newPassword;
-  const NNEWPASSWORD = NEWPASSWORD;
-  const { errors, isValid } = validateRegisterInput(req.body);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-  const email = req.body.email;
-  User.findOne({ email: req.body.email })
-    .then((user) => {
-      if (user) {
-        return res.status(404).json({ email: "User already exists." });
-      } else {
-        UserGuardian.findOne({ email: req.body.email }).then((user) => {
-          if (user) {
-            return res.status(404).json({ email: "User already exists." });
-          } else {
-            bcrypt.genSalt(10, (err, salt) => {
-              if (err) throw err;
-              bcrypt.hash(newPassword, salt, (err, hash) => {
+router.post(
+  "/registerGuardian",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { errors, isValid } = validateRegisterInput(req.body);
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    let newPassword = JSON.stringify(
+      Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
+    );
+    const NEWPASSWORD = newPassword;
+    const NNEWPASSWORD = NEWPASSWORD;
+    const USER = req.user._id;
+    const email = req.body.email;
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        if (user) {
+          return res.status(404).json({ email: "User already exists." });
+        } else {
+          UserGuardian.findOne({ email: req.body.email }).then((user) => {
+            if (user) {
+              return res.status(404).json({ email: "User already exists." });
+            } else {
+              bcrypt.genSalt(10, (err, salt) => {
                 if (err) throw err;
-                newPassword = hash;
-                const avatar = gravatar.url(req.body.email, {
-                  s: "200",
-                  r: "g",
-                  d: "mm",
-                });
-                const newUserGuardian = new UserGuardian({
-                  email: req.body.email,
-                  avatar,
-                  password: newPassword,
-                });
-                newUserGuardian
-                  .save()
-                  .then((user) => res.json(user))
-                  .then(() => {
-                    var transporter = nodemailer.createTransport(
-                      process.env.smtp
-                    );
+                bcrypt.hash(newPassword, salt, (err, hash) => {
+                  if (err) throw err;
+                  newPassword = hash;
+                  const avatar = gravatar.url(req.body.email, {
+                    s: "200",
+                    r: "g",
+                    d: "mm",
+                  });
+                  const newUserGuardian = new UserGuardian({
+                    user: USER,
+                    email: req.body.email,
+                    avatar,
+                    password: newPassword,
+                  });
+                  newUserGuardian
+                    .save()
+                    .then((user) => res.json(user))
+                    .then(() => {
+                      var transporter = nodemailer.createTransport(
+                        process.env.smtp
+                      );
 
-                    // setup e-mail data with unicode symbols
-                    var mailOptions = {
-                      from: req.body.name + req.body.email, // sender address
-                      to: email, // list of receivers
-                      subject: "Temporary password", // Subject line
-                      text:
-                        "Temporary Password for Parent Portal:" + NNEWPASSWORD,
-                    };
+                      // setup e-mail data with unicode symbols
+                      var mailOptions = {
+                        from: req.body.name + req.body.email, // sender address
+                        to: email, // list of receivers
+                        subject: "Temporary password", // Subject line
+                        text:
+                          "Temporary Password for Parent Portal:" +
+                          NNEWPASSWORD,
+                      };
 
-                    // send mail with defined transport object
-                    transporter.sendMail(mailOptions, function (error, info) {
-                      if (!error) {
-                        res.send("Email sent");
-                      } else {
-                        res.send("Failed, error : ");
-                      }
-                      transporter.close();
-                      console.log("Message sent: " + info.response);
-                    });
-                  })
-                  .catch((err) => console.log(err));
+                      // send mail with defined transport object
+                      transporter.sendMail(mailOptions, function (error, info) {
+                        if (!error) {
+                          res.send("Email sent");
+                        } else {
+                          res.send("Failed, error : ");
+                        }
+                        transporter.close();
+                        console.log("Message sent: " + info.response);
+                      });
+                    })
+                    .catch((err) => console.log(err));
+                });
               });
-            });
-          }
-        });
-      }
-    })
-    .catch((err) => console.log(err));
-});
+            }
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+);
 // @route POST /api/users
 // @desc Register user
 // @access Public
@@ -219,42 +227,41 @@ router.post("/login", (req, res) => {
             })
             .catch((err) => console.log(err));
         });
-
       }
-        User.findOne({ email }).then((user) => {
-                  if (!user) {
-                    return res.status(404).json({ email: "Email doesn't exists." });
-                  }
-                  //check the password
+      User.findOne({ email }).then((user) => {
+        if (!user) {
+          return res.status(404).json({ email: "Email doesn't exists." });
+        }
+        //check the password
 
-                  bcrypt
-                    .compare(password, user.password)
-                    .then((isMatch) => {
-                      if (isMatch) {
-                        //User matched and create a token
-                        const payload = {
-                          id: user.id,
-                          name: user.name,
-                          avatar: user.avatar,
-                        };
+        bcrypt
+          .compare(password, user.password)
+          .then((isMatch) => {
+            if (isMatch) {
+              //User matched and create a token
+              const payload = {
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+              };
 
-                        jwt.sign(
-                          payload,
-                          process.env.secretOrKey,
-                          { expiresIn: 3600 },
-                          (err, token) => {
-                            //console.log(token);
-                            return res.json({ token: `Bearer ` + token });
-                          }
-                        );
-                      } else {
-                        return res.status(400).json({ password: "Invalid password" });
-                      }
-                    })
-                    .catch((err) => console.log(err));
-                });
-            })
-            .catch((err) => console.log(err));
+              jwt.sign(
+                payload,
+                process.env.secretOrKey,
+                { expiresIn: 3600 },
+                (err, token) => {
+                  //console.log(token);
+                  return res.json({ token: `Bearer ` + token });
+                }
+              );
+            } else {
+              return res.status(400).json({ password: "Invalid password" });
+            }
+          })
+          .catch((err) => console.log(err));
+      });
+    })
+    .catch((err) => console.log(err));
 });
 
 //'current' route is for testing passport in the server side before we build UI.
@@ -286,47 +293,48 @@ router.post("/forgotPassword", (req, res) => {
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-        UserGuardian.findOne({ email }).then((user) => {
-          if(!user){
-            return res.status(404).json({ email: "User not found" });
-          }  else {
-            bcrypt.genSalt(10, (err, salt) => {
-              if (err) throw err;
-              bcrypt.hash(newPassword, salt, (err, hash) => {
+        UserGuardian.findOne({ email })
+          .then((user) => {
+            if (!user) {
+              return res.status(404).json({ email: "User not found" });
+            } else {
+              bcrypt.genSalt(10, (err, salt) => {
                 if (err) throw err;
-                newPassword = hash;
-                UserGuardian.updateOne(
-                  { email: email },
-                  { $set: { password: newPassword } }
-                ).then((user) => {
-                  res.json(user);
+                bcrypt.hash(newPassword, salt, (err, hash) => {
+                  if (err) throw err;
+                  newPassword = hash;
+                  UserGuardian.updateOne(
+                    { email: email },
+                    { $set: { password: newPassword } }
+                  ).then((user) => {
+                    res.json(user);
+                  });
                 });
               });
-            });
-            var transporter = nodemailer.createTransport(process.env.smtp);
-    
-            // setup e-mail data with unicode symbols
-            var mailOptions = {
-              from: req.body.name + req.body.email, // sender address
-              to: email, // list of receivers
-              subject: "Temporary password", // Subject line
-              text: "Temporary Password :" + newPassword,
-            };
-    
-            // send mail with defined transport object
-            transporter.sendMail(mailOptions, function (error, info) {
-              if (!error) {
-                res.send("Email sent");
-              } else {
-                res.send("Failed, error : ");
-              }
-              transporter.close();
-              console.log("Message sent: " + info.response);
-            });
-          }
-        })
-        .catch((err) => console.log(err));       
-      }   else {
+              var transporter = nodemailer.createTransport(process.env.smtp);
+
+              // setup e-mail data with unicode symbols
+              var mailOptions = {
+                from: req.body.name + req.body.email, // sender address
+                to: email, // list of receivers
+                subject: "Temporary password", // Subject line
+                text: "Temporary Password :" + newPassword,
+              };
+
+              // send mail with defined transport object
+              transporter.sendMail(mailOptions, function (error, info) {
+                if (!error) {
+                  res.send("Email sent");
+                } else {
+                  res.send("Failed, error : ");
+                }
+                transporter.close();
+                console.log("Message sent: " + info.response);
+              });
+            }
+          })
+          .catch((err) => console.log(err));
+      } else {
         bcrypt.genSalt(10, (err, salt) => {
           if (err) throw err;
           bcrypt.hash(newPassword, salt, (err, hash) => {
@@ -360,9 +368,9 @@ router.post("/forgotPassword", (req, res) => {
           transporter.close();
           console.log("Message sent: " + info.response);
         });
-      } 
+      }
     })
-    .catch((err) => console.log(err))
+    .catch((err) => console.log(err));
 });
 //@route   POST /api/users/changePassword
 //@desc    change user's password
@@ -383,63 +391,61 @@ router.post(
       .then((user) => {
         if (!user) {
           UserGuardian.findOne({ email }).then((user) => {
-            if(!user){
+            if (!user) {
               return res.status(404).json({ email: "User not found" });
             }
-              // Check password
-              var ID = user.id;
-              bcrypt
-                .compare(oldPassword, user.password)
-                .then((isMatch) => {
-                  if (isMatch) {
-                    //User matched
-                    bcrypt.genSalt(10, (err, salt) => {
+            // Check password
+            var ID = user.id;
+            bcrypt
+              .compare(oldPassword, user.password)
+              .then((isMatch) => {
+                if (isMatch) {
+                  //User matched
+                  bcrypt.genSalt(10, (err, salt) => {
+                    if (err) throw err;
+                    bcrypt.hash(newPassword, salt, (err, hash) => {
                       if (err) throw err;
-                      bcrypt.hash(newPassword, salt, (err, hash) => {
-                        if (err) throw err;
-                        newPassword = hash;
-                        UserGuardian.updateOne(
-                          { _id: ID },
-                          { $set: { password: newPassword } }
-                        ).then((user) => {
-                          res.json(user);
-                        });
+                      newPassword = hash;
+                      UserGuardian.updateOne(
+                        { _id: ID },
+                        { $set: { password: newPassword } }
+                      ).then((user) => {
+                        res.json(user);
                       });
                     });
-                  } else {
-                    console.log("couldn't change password");
-                  }
-                })
-                .catch((err) => console.log(err));
-          })
-         
+                  });
+                } else {
+                  console.log("couldn't change password");
+                }
+              })
+              .catch((err) => console.log(err));
+          });
         }
-         // Check password
-         var ID = user.id;
-         bcrypt
-           .compare(oldPassword, user.password)
-           .then((isMatch) => {
-             if (isMatch) {
-               //User matched
-               bcrypt.genSalt(10, (err, salt) => {
-                 if (err) throw err;
-                 bcrypt.hash(newPassword, salt, (err, hash) => {
-                   if (err) throw err;
-                   newPassword = hash;
-                   User.updateOne(
-                     { _id: ID },
-                     { $set: { password: newPassword } }
-                   ).then((user) => {
-                     res.json(user);
-                   });
-                 });
-               });
-             } else {
-               console.log("couldn't change password");
-             }
-           })
-           .catch((err) => console.log(err));
-       
+        // Check password
+        var ID = user.id;
+        bcrypt
+          .compare(oldPassword, user.password)
+          .then((isMatch) => {
+            if (isMatch) {
+              //User matched
+              bcrypt.genSalt(10, (err, salt) => {
+                if (err) throw err;
+                bcrypt.hash(newPassword, salt, (err, hash) => {
+                  if (err) throw err;
+                  newPassword = hash;
+                  User.updateOne(
+                    { _id: ID },
+                    { $set: { password: newPassword } }
+                  ).then((user) => {
+                    res.json(user);
+                  });
+                });
+              });
+            } else {
+              console.log("couldn't change password");
+            }
+          })
+          .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
   }

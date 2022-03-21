@@ -18,8 +18,6 @@ router.post(
   "/registerkid",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    // console.log('req: ', req.body);
-    // console.log('res: ', res);
     const { errors, isValid } = validateRegisterkidInput(req.body);
     if (!isValid) {
       return res.status(400).json(errors);
