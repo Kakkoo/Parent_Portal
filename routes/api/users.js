@@ -228,38 +228,34 @@ router.post("/login", (req, res) => {
             .catch((err) => console.log(err));
         });
       }
-      User.findOne({ email }).then((user) => {
-        if (!user) {
-          return res.status(404).json({ email: "Email doesn't exists." });
-        }
-        //check the password
 
-        bcrypt
-          .compare(password, user.password)
-          .then((isMatch) => {
-            if (isMatch) {
-              //User matched and create a token
-              const payload = {
-                id: user.user,
-                name: user.name,
-                avatar: user.avatar,
-              };
+      //check the password
 
-              jwt.sign(
-                payload,
-                process.env.secretOrKey,
-                { expiresIn: 3600 },
-                (err, token) => {
-                  //console.log(token);
-                  return res.json({ token: `Bearer ` + token });
-                }
-              );
-            } else {
-              return res.status(400).json({ password: "Invalid password" });
-            }
-          })
-          .catch((err) => console.log(err));
-      });
+      bcrypt
+        .compare(password, user.password)
+        .then((isMatch) => {
+          if (isMatch) {
+            //User matched and create a token
+            const payload = {
+              id: user.user,
+              name: user.name,
+              avatar: user.avatar,
+            };
+
+            jwt.sign(
+              payload,
+              process.env.secretOrKey,
+              { expiresIn: 3600 },
+              (err, token) => {
+                //console.log(token);
+                return res.json({ token: `Bearer ` + token });
+              }
+            );
+          } else {
+            return res.status(400).json({ password: "Invalid password" });
+          }
+        })
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 });
