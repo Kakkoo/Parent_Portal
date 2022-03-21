@@ -192,10 +192,10 @@ router.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  User.findOne({ email })
+  UserGuardian.findOne({ email })
     .then((user) => {
       if (!user) {
-        UserGuardian.findOne({ email }).then((user) => {
+        User.findOne({ email }).then((user) => {
           if (!user) {
             return res.status(404).json({ email: "Email doesn't exists." });
           }
@@ -207,7 +207,7 @@ router.post("/login", (req, res) => {
               if (isMatch) {
                 //User matched and create a token
                 const payload = {
-                  id: user.user,
+                  id: user.id,
                   name: user.name,
                   avatar: user.avatar,
                 };
@@ -240,7 +240,7 @@ router.post("/login", (req, res) => {
             if (isMatch) {
               //User matched and create a token
               const payload = {
-                id: user.id,
+                id: user.user,
                 name: user.name,
                 avatar: user.avatar,
               };
