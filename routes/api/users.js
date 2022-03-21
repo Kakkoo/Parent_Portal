@@ -285,8 +285,8 @@ router.post("/forgotPassword", (req, res) => {
   );
   //Find a user with the email
   User.findOne({ email })
-    .then((user) => {
-      if (!user) {
+    .then((userr) => {
+      if (!userr) {
         UserGuardian.findOne({ email })
           .then((user) => {
             if (!user) {
@@ -382,8 +382,8 @@ router.post(
     let newPassword = req.body.newPassword;
 
     User.findOne({ email })
-      .then((user) => {
-        if (!user) {
+      .then((userr) => {
+        if (!userr) {
           UserGuardian.findOne({ email }).then((user) => {
             if (!user) {
               return res.status(404).json({ email: "User not found" });
@@ -416,9 +416,9 @@ router.post(
           });
         }
         // Check password
-        var ID = user.id;
+        var ID = userr.id;
         bcrypt
-          .compare(oldPassword, user.password)
+          .compare(oldPassword, userr.password)
           .then((isMatch) => {
             if (isMatch) {
               //User matched
