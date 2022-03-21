@@ -193,8 +193,8 @@ router.post("/login", (req, res) => {
   const password = req.body.password;
 
   UserGuardian.findOne({ email })
-    .then((user) => {
-      if (!user) {
+    .then((userr) => {
+      if (!userr) {
         User.findOne({ email }).then((user) => {
           if (!user) {
             return res.status(404).json({ email: "Email doesn't exists." });
@@ -208,7 +208,6 @@ router.post("/login", (req, res) => {
                 //User matched and create a token
                 const payload = {
                   id: user.id,
-                  name: user.name,
                   avatar: user.avatar,
                 };
 
@@ -232,14 +231,13 @@ router.post("/login", (req, res) => {
       //check the password
 
       bcrypt
-        .compare(password, user.password)
+        .compare(password, userr.password)
         .then((isMatch) => {
           if (isMatch) {
             //User matched and create a token
             const payload = {
-              id: user.user,
-              name: user.name,
-              avatar: user.avatar,
+              id: userr.user,
+              avatar: userr.avatar,
             };
 
             jwt.sign(
